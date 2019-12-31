@@ -34,7 +34,7 @@ def plotting_array(array):
 
 if __name__ == '__main__':
     """
-    This is a demo, Tx at (0, 0, 0), Hn array from 3 to 15 are 12
+    This is a demo, Tx at (0, 0, 0).
     """
     tmp = np.zeros(TIME_ARRAY_LENGTH)
     tmp[0:1] = 1
