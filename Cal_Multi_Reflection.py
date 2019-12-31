@@ -6,6 +6,7 @@
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 import copy
 from Ref_Node import RefNode
 from Helper import TIME_ARRAY_LENGTH, WALL_NODE, C, DT, REFLECT_TIMES
@@ -25,16 +26,22 @@ def get_response(node):
     return hn_array
 
 
+def plotting_array(array):
+    # todo: complete the function of plotting
+    plt.plot(array)
+    plt.show()
+
+
 if __name__ == '__main__':
     """
     This is a demo, Tx at (0, 0, 0), Hn array from 3 to 15 are 12
     """
     tmp = np.zeros(TIME_ARRAY_LENGTH)
-    tmp[3:15] = 12
+    tmp[0:1] = 1
     demo = RefNode([0, 0, 0], tmp)
 
     """
-    1st time reflection
+    1st time reflection. (Tx --> Wall)
     """
     adding = get_response(demo)
     for i in range(len(WALL_NODE)):
@@ -42,7 +49,7 @@ if __name__ == '__main__':
         # print(WALL_NODE[i].hn_array)
 
     """
-    n time(s) reflection
+    n time(s) reflection. (Wall --> Wall)
     """
     for times in range(REFLECT_TIMES):
         adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
@@ -52,7 +59,12 @@ if __name__ == '__main__':
             WALL_NODE[i].hn_array += adding[i]
 
     """
+    get response from all WALL_NODE. (Wall --> Rx)
+    """
+    # todo: calculate the Hn_array on the Rx by get from all WALL_NODE
+
+    """
     Check result
     """
     for i in range(len(WALL_NODE)):
-        print(WALL_NODE[i].hn_array)
+        plotting_array(WALL_NODE[i].hn_array)
