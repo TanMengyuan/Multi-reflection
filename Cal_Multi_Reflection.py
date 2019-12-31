@@ -8,7 +8,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
-from Ref_Node import RefNode
+from RefNode import RefNode
 from Helper import TIME_ARRAY_LENGTH, WALL_NODE, C, DT, REFLECT_TIMES
 
 
@@ -26,13 +26,14 @@ def get_response(node):
     return hn_array
 
 
-def plotting_array(array):
+def plotting_array(node):
     # todo: complete the function of plotting
-    plt.plot(array)
+    plt.plot(node.hn_array)
     plt.show()
 
 
 if __name__ == '__main__':
+    # todo: demo is a range, not a signal point
     """
     This is a demo, Tx at (0, 0, 0).
     """
@@ -67,4 +68,4 @@ if __name__ == '__main__':
     Check result
     """
     for i in range(len(WALL_NODE)):
-        plotting_array(WALL_NODE[i].hn_array)
+        plotting_array(WALL_NODE[i])

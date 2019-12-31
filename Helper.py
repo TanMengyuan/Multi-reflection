@@ -7,7 +7,7 @@
 
 import json
 import numpy as np
-from Ref_Node import RefNode
+from RefNode import RefNode
 
 CONFIG_FILE = './config.json'
 
