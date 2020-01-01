@@ -105,7 +105,7 @@ if __name__ == '__main__':
     """
     get response from all WALL_NODE. (Wall --> Rx)
     """
-    Rx_demo = RefNode([1, 1, RX_HEIGHT], np.zeros(TIME_ARRAY_LENGTH))
+    Rx_demo = RefNode([0.1, 0.1, RX_HEIGHT], np.zeros(TIME_ARRAY_LENGTH))
     Rx_response = receive_response(Rx_demo)
     Rx_demo.hn_array = Rx_response
     plotting_array(Rx_demo)

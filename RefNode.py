@@ -19,7 +19,8 @@ class RefNode:
                            np.square(self.y - b_node.y) +
                            np.square(self.z - b_node.z))
         # todo: finish the formula to calculate the hn by a_node and b_node
-        hn = distance ** 0.1
+        # <-- This is just a sample -->
+        hn = 1 / np.square(distance)
         delay = distance / C
         return delay, hn
 
