@@ -11,6 +11,21 @@ import copy
 from RefNode import RefNode
 from Helper import TIME_ARRAY_LENGTH, C, DT, REFLECT_TIMES
 from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN, RX_HEIGHT
+from Helper import MARGIN_X, MARGIN_Y, MARGIN_Z, WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z
+
+
+def create_wall_node():
+    wall_node = []
+    for x in [0, ROOM_X_LEN]:
+        for y in np.linspace(MARGIN_X, ROOM_X_LEN - MARGIN_X, WALL_NODE_NUM_X):
+            for z in np.linspace(MARGIN_Z, ROOM_Z_LEN - MARGIN_Z, WALL_NODE_NUM_Z):
+                wall_node.append(RefNode([x, y, z], np.zeros(TIME_ARRAY_LENGTH)))
+    for y in [0, ROOM_X_LEN]:
+        for x in np.linspace(MARGIN_X, ROOM_X_LEN - MARGIN_X, WALL_NODE_NUM_X):
+            for z in np.linspace(MARGIN_Z, ROOM_Z_LEN - MARGIN_Z, WALL_NODE_NUM_Z):
+                wall_node.append(RefNode([x, y, z], np.zeros(TIME_ARRAY_LENGTH)))
+
+    return wall_node
 
 
 def get_response(node):
@@ -48,12 +63,7 @@ def plotting_array(node):
 
 
 if __name__ == '__main__':
-    # todo: finish the all wall node by using looping
-
-    WALL_NODE = [RefNode([0.1, 0, 0.1], np.zeros(TIME_ARRAY_LENGTH)),
-                 RefNode([0, 1.5, 1], np.zeros(TIME_ARRAY_LENGTH)),
-                 RefNode([0.75, 5, 1.25], np.zeros(TIME_ARRAY_LENGTH)),
-                 RefNode([5, 0.8, 2.15], np.zeros(TIME_ARRAY_LENGTH))]
+    WALL_NODE = create_wall_node()
 
     """
     This is a demo.
@@ -89,8 +99,8 @@ if __name__ == '__main__':
     """
     Check result
     """
-    for i in range(len(WALL_NODE)):
-        plotting_array(WALL_NODE[i])
+    # for i in range(len(WALL_NODE)):
+    #     plotting_array(WALL_NODE[i])
 
     """
     get response from all WALL_NODE. (Wall --> Rx)

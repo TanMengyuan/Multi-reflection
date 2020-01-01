@@ -21,22 +21,23 @@ with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
     WALL_NODE_NUM = config["WALL_NODE_NUM"]
 
 
+# Resolve data
 try:
     room_size = list(map(int, ROOM_SIZE.split("*")))
 except:
     raise ImportError("ROOM_SIZE can't resolve.")
 try:
-    wall_node_num = list(map(int, WALL_NODE_NUM.split("*")))
+    wall_node_num = list(map(int, WALL_NODE_NUM.split(",")))
 except:
     raise ImportError("WALL_NODE_NUM can't resolve.")
 
 
 ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN = room_size[0], room_size[1], room_size[2]
-WALL_NODE_NUM_X, WALL_NODE_NUM_Y = wall_node_num[0], wall_node_num[1]
-# todo
-MARGIN_X, MARGIN_Y, MARGIN_Z = 0, 0, 0
+WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z = wall_node_num[0], wall_node_num[1], wall_node_num[2]
+MARGIN_X, MARGIN_Y, MARGIN_Z = (ROOM_X_LEN / WALL_NODE_NUM_X) / 2, \
+                               (ROOM_Y_LEN / WALL_NODE_NUM_Y) / 2, \
+                               (ROOM_Z_LEN / WALL_NODE_NUM_Z) / 2
 DT = MAXIMUM_TIME / TIME_ARRAY_LENGTH
 
 # Constant
 C = 3e8
-

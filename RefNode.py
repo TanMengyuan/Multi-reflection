@@ -9,7 +9,7 @@ import numpy as np
 from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN, FOV, C
 
 
-class RefNode():
+class RefNode:
     def __init__(self, pos, cur_hn):
         self.x, self.y, self.z = pos[0], pos[1], pos[2]
         self.hn_array = cur_hn
