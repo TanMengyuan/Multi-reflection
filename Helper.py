@@ -25,11 +25,11 @@ with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
 try:
     room_size = list(map(int, ROOM_SIZE.split("*")))
 except:
-    raise ImportError("ROOM_SIZE can't resolve.")
+    raise ImportError("ROOM_SIZE can't resolve, it should be like 5*5*3.")
 try:
     wall_node_num = list(map(int, WALL_NODE_NUM.split(",")))
 except:
-    raise ImportError("WALL_NODE_NUM can't resolve.")
+    raise ImportError("WALL_NODE_NUM can't resolve, it should be like 10,10,10")
 
 
 ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN = room_size[0], room_size[1], room_size[2]
