@@ -9,18 +9,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 from RefNode import RefNode
-from Helper import TIME_ARRAY_LENGTH, WALL_NODE, C, DT, REFLECT_TIMES
+from Helper import TIME_ARRAY_LENGTH, C, DT, REFLECT_TIMES
+from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN
 
 
 def get_response(node):
     hn_array = []
     ori_hn_array = copy.deepcopy(node.hn_array)
     for each in WALL_NODE:
-        d, cur_hn = node.get_distance_and_hn(each)
-        delay = d / C
-        cur_hn_array = ori_hn_array
-        cur_hn_array *= cur_hn
-        cur_hn_array = np.insert(cur_hn_array, 0, [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
+        cur_hn_array = np.zeros(TIME_ARRAY_LENGTH)
+        if not node.is_in_same_wall(each):
+            d, cur_hn = node.get_distance_and_hn(each)
+            delay = d / C
+            cur_hn_array = ori_hn_array
+            cur_hn_array *= cur_hn
+            cur_hn_array = np.insert(cur_hn_array, 0, [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
         hn_array.append(cur_hn_array)
 
     return hn_array
@@ -33,6 +36,12 @@ def plotting_array(node):
 
 
 if __name__ == '__main__':
+    # todo: finish the all wall node by using looping
+    WALL_NODE = [RefNode([0.1, 0, 0.1], np.zeros(TIME_ARRAY_LENGTH)),
+                 RefNode([0, 1.5, 1], np.zeros(TIME_ARRAY_LENGTH)),
+                 RefNode([0.75, 5, 1.25], np.zeros(TIME_ARRAY_LENGTH)),
+                 RefNode([5, 0.8, 2.15], np.zeros(TIME_ARRAY_LENGTH))]
+
     # todo: demo is a range, not a signal point
     """
     This is a demo, Tx at (0, 0, 0).

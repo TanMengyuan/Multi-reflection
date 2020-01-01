@@ -1,6 +1,6 @@
 {
   "TIME_ARRAY_LENGTH":200,
   "MAXIMUM_TIME": 100e-9,
-  "C": 3e8,
-  "REFLECT_TIMES": 2
+  "REFLECT_TIMES": 2,
+  "ROOM_SIZE": "5*5*3"
 }

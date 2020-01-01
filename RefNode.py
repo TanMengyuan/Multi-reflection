@@ -6,11 +6,11 @@
 """
 
 import numpy as np
+from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN
 
 
 class RefNode:
     def __init__(self, pos, cur_hn):
-        self.position = pos
         self.x = pos[0]
         self.y = pos[1]
         self.z = pos[2]
@@ -21,3 +21,7 @@ class RefNode:
         # todo: finish the formula to calculate the hn by a_node and b_node
         hn = distance ** 0.1
         return distance, hn
+
+    def is_in_same_wall(self, b_node):
+        return (self.x == b_node.x and self.x in [0, ROOM_X_LEN]) or \
+               (self.y == b_node.y and self.y in [0, ROOM_Y_LEN])
