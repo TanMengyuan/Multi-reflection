@@ -11,16 +11,17 @@ import copy
 from RefNode import RefNode
 from Helper import TIME_ARRAY_LENGTH, C, DT, REFLECT_TIMES
 from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN, RX_HEIGHT
-from Helper import MARGIN_X, MARGIN_Y, MARGIN_Z, WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z
+from Helper import MARGIN_X, MARGIN_Y, MARGIN_Z, \
+    WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z
 
 
 def create_wall_node():
     wall_node = []
     for x in [0, ROOM_X_LEN]:
-        for y in np.linspace(MARGIN_X, ROOM_X_LEN - MARGIN_X, WALL_NODE_NUM_X):
+        for y in np.linspace(MARGIN_Y, ROOM_Y_LEN - MARGIN_Y, WALL_NODE_NUM_Y):
             for z in np.linspace(MARGIN_Z, ROOM_Z_LEN - MARGIN_Z, WALL_NODE_NUM_Z):
                 wall_node.append(RefNode([x, y, z], np.zeros(TIME_ARRAY_LENGTH)))
-    for y in [0, ROOM_X_LEN]:
+    for y in [0, ROOM_Y_LEN]:
         for x in np.linspace(MARGIN_X, ROOM_X_LEN - MARGIN_X, WALL_NODE_NUM_X):
             for z in np.linspace(MARGIN_Z, ROOM_Z_LEN - MARGIN_Z, WALL_NODE_NUM_Z):
                 wall_node.append(RefNode([x, y, z], np.zeros(TIME_ARRAY_LENGTH)))
@@ -37,7 +38,8 @@ def get_response(node):
             delay, cur_hn = node.get_delay_and_hn(each)
             cur_hn_array = ori_hn_array
             cur_hn_array *= cur_hn
-            cur_hn_array = np.insert(cur_hn_array, 0, [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
+            cur_hn_array = np.insert(cur_hn_array, 0,
+                                     [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
         hn_array.append(cur_hn_array)
 
     return hn_array
@@ -50,7 +52,8 @@ def receive_response(to_node):
             delay, cur_hn = to_node.get_delay_and_hn(each)
             cur_hn_array = copy.deepcopy(each.hn_array)
             cur_hn_array *= cur_hn
-            cur_hn_array = np.insert(cur_hn_array, 0, [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
+            cur_hn_array = np.insert(cur_hn_array, 0,
+                                     [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
             hn_array += cur_hn_array
 
     return hn_array
@@ -82,9 +85,6 @@ if __name__ == '__main__':
         adding += get_response(cur_node)
     for i in range(len(WALL_NODE)):
         WALL_NODE[i].hn_array += adding[i]
-    # adding = get_response(demo)
-    # for i in range(len(WALL_NODE)):
-    #     WALL_NODE[i].hn_array += adding[i]
 
     """
     n time(s) reflection. (Wall --> Wall)

@@ -33,7 +33,9 @@ except:
 
 
 ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN = room_size[0], room_size[1], room_size[2]
-WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z = wall_node_num[0], wall_node_num[1], wall_node_num[2]
+WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z = wall_node_num[0], \
+                                                    wall_node_num[1], \
+                                                    wall_node_num[2]
 MARGIN_X, MARGIN_Y, MARGIN_Z = (ROOM_X_LEN / WALL_NODE_NUM_X) / 2, \
                                (ROOM_Y_LEN / WALL_NODE_NUM_Y) / 2, \
                                (ROOM_Z_LEN / WALL_NODE_NUM_Z) / 2
