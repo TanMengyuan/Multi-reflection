@@ -6,7 +6,6 @@
 """
 
 import json
-import numpy as np
 
 CONFIG_FILE = './config.json'
 
@@ -43,3 +42,4 @@ DT = MAXIMUM_TIME / TIME_ARRAY_LENGTH
 
 # Constant
 C = 3e8
+# todo: adding other constant of VLC

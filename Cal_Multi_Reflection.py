@@ -15,7 +15,7 @@ from Helper import MARGIN_X, MARGIN_Y, MARGIN_Z, \
     WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z
 
 
-def create_wall_node():
+def init_wall_node():
     wall_node = []
     for x in [0, ROOM_X_LEN]:
         for y in np.linspace(MARGIN_Y, ROOM_Y_LEN - MARGIN_Y, WALL_NODE_NUM_Y):
@@ -39,7 +39,7 @@ def get_response(node):
             cur_hn_array = ori_hn_array
             cur_hn_array *= cur_hn
             cur_hn_array = np.insert(cur_hn_array, 0,
-                                     [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
+                                     np.zeros(int(delay // DT)))[:TIME_ARRAY_LENGTH]
         hn_array.append(cur_hn_array)
 
     return hn_array
@@ -53,7 +53,7 @@ def receive_response(to_node):
             cur_hn_array = copy.deepcopy(each.hn_array)
             cur_hn_array *= cur_hn
             cur_hn_array = np.insert(cur_hn_array, 0,
-                                     [0 for _ in range(int(delay // DT))])[:TIME_ARRAY_LENGTH]
+                                     np.zeros(int(delay // DT)))[:TIME_ARRAY_LENGTH]
             hn_array += cur_hn_array
 
     return hn_array
@@ -66,13 +66,13 @@ def plotting_array(node):
 
 
 if __name__ == '__main__':
-    WALL_NODE = create_wall_node()
+    WALL_NODE = init_wall_node()
 
     """
     This is a demo.
     """
     tmp = np.zeros(TIME_ARRAY_LENGTH)
-    tmp[0:1] = 1
+    tmp[0] = 1
     Tx_demo = [RefNode([1, 1, ROOM_Z_LEN], tmp),
                RefNode([2, 2, ROOM_Z_LEN], tmp),
                RefNode([1, 2, ROOM_Z_LEN], tmp)]
@@ -90,6 +90,7 @@ if __name__ == '__main__':
     n time(s) reflection. (Wall --> Wall)
     """
     for times in range(REFLECT_TIMES):
+        # At nth time
         adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
         for cur_node in WALL_NODE:
             adding += get_response(cur_node)

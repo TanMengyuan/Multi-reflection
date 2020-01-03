@@ -12,6 +12,7 @@ from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN, FOV, C
 class RefNode:
     def __init__(self, pos, cur_hn):
         self.x, self.y, self.z = pos[0], pos[1], pos[2]
+        self.position = [self.x, self.y, self.z]
         self.hn_array = cur_hn
 
     def get_delay_and_hn(self, b_node):
