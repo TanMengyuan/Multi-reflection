@@ -8,11 +8,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+import datetime
 from RefNode import RefNode
-from Helper import TIME_ARRAY_LENGTH, C, DT, REFLECT_TIMES
-from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN, RX_HEIGHT
-from Helper import MARGIN_X, MARGIN_Y, MARGIN_Z, \
-    WALL_NODE_NUM_X, WALL_NODE_NUM_Y, WALL_NODE_NUM_Z
+from Helper import *
 
 
 def init_wall_node():
@@ -81,21 +79,29 @@ if __name__ == '__main__':
     1st time reflection. (Tx --> Wall)
     """
     adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
+    start_time = datetime.datetime.now()
     for cur_node in Tx_demo:
         adding += get_response(cur_node)
     for i in range(len(WALL_NODE)):
         WALL_NODE[i].hn_array += adding[i]
+    end_time = datetime.datetime.now()
+    print("At first time reflection, program running %.2f seconds"
+          % ((end_time - start_time).microseconds / 1e6))
 
     """
     n time(s) reflection. (Wall --> Wall)
     """
     for times in range(REFLECT_TIMES):
         # At nth time
+        start_time = datetime.datetime.now()
         adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
         for cur_node in WALL_NODE:
             adding += get_response(cur_node)
         for i in range(len(WALL_NODE)):
             WALL_NODE[i].hn_array += adding[i]
+        end_time = datetime.datetime.now()
+        print("At %d time reflection, program running %.2f seconds"
+              % ((times + 1), ((end_time - start_time).microseconds / 1e6)))
 
     """
     Check result
@@ -107,7 +113,11 @@ if __name__ == '__main__':
     get response from all WALL_NODE. (Wall --> Rx)
     """
     Rx_demo = RefNode([0.1, 0.1, RX_HEIGHT], np.zeros(TIME_ARRAY_LENGTH))
+    start_time = datetime.datetime.now()
     Rx_response = receive_response(Rx_demo)
+    end_time = datetime.datetime.now()
+    print("At last time reflection, program running %.2f seconds"
+          % ((end_time - start_time).microseconds / 1e6))
     Rx_demo.hn_array = Rx_response
     plotting_array(Rx_demo)
 
