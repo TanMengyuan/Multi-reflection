@@ -8,9 +8,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+from enum import Enum
 import datetime
 from RefNode import RefNode
 from Helper import *
+
+
+class RefCase(Enum):
+    FIRST_REF = "FIRST_REF"
+    MID_REF = "MID_REF"
+    LAST_REF = "LAST_REF"
 
 
 def init_wall_node():
@@ -25,6 +32,18 @@ def init_wall_node():
                 wall_node.append(RefNode([x, y, z], np.zeros(TIME_ARRAY_LENGTH)))
 
     return wall_node
+
+
+def get_response_by_case(node: RefNode, case: RefCase):
+    # todo: case1: Tx --> Wall; case2: Wall --> Wall; case3: Wall --> Rx (Wall node is default.)
+    if case == RefCase.FIRST_REF:
+        pass
+    elif case == RefCase.MID_REF:
+        pass
+    elif case == RefCase.LAST_REF:
+        pass
+
+    return
 
 
 def get_response(node):
@@ -43,6 +62,7 @@ def get_response(node):
     return hn_array
 
 
+# might not be use --> change to get_response_by_case
 def receive_response(to_node):
     hn_array = np.zeros(TIME_ARRAY_LENGTH)
     for each in WALL_NODE:
@@ -120,5 +140,3 @@ if __name__ == '__main__':
           % ((end_time - start_time).microseconds / 1e6))
     Rx_demo.hn_array = Rx_response
     plotting_array(Rx_demo)
-
-
