@@ -106,7 +106,7 @@ if __name__ == '__main__':
         WALL_NODE[i].hn_array += adding[i]
     end_time = datetime.datetime.now()
     print("At first time reflection, program running %.2f seconds"
-          % ((end_time - start_time).microseconds / 1e6))
+          % ((end_time - start_time).total_seconds()))
 
     """
     n time(s) reflection. (Wall --> Wall)
@@ -121,7 +121,7 @@ if __name__ == '__main__':
             WALL_NODE[i].hn_array += adding[i]
         end_time = datetime.datetime.now()
         print("At %d time reflection, program running %.2f seconds"
-              % ((times + 1), ((end_time - start_time).microseconds / 1e6)))
+              % ((times + 1), ((end_time - start_time).total_seconds())))
 
     """
     Check result
@@ -137,6 +137,6 @@ if __name__ == '__main__':
     Rx_response = receive_response(Rx_demo)
     end_time = datetime.datetime.now()
     print("At last time reflection, program running %.2f seconds"
-          % ((end_time - start_time).microseconds / 1e6))
+          % ((end_time - start_time).total_seconds()))
     Rx_demo.hn_array = Rx_response
     plotting_array(Rx_demo)
