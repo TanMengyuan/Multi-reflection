@@ -15,9 +15,9 @@ from Helper import *
 
 
 class RefCase(Enum):
-    FIRST_REF = "FIRST_REF"
-    MID_REF = "MID_REF"
-    LAST_REF = "LAST_REF"
+    T_TO_W = "T_TO_W"
+    W_TO_W = "W_TO_W"
+    W_TO_R = "W_TO_R"
 
 
 def init_wall_node():
@@ -36,11 +36,11 @@ def init_wall_node():
 
 def get_response_by_case(node: RefNode, case: RefCase):
     # todo: case1: Tx --> Wall; case2: Wall --> Wall; case3: Wall --> Rx (Wall node is default.)
-    if case == RefCase.FIRST_REF:
+    if case == RefCase.T_TO_W:
         pass
-    elif case == RefCase.MID_REF:
+    elif case == RefCase.W_TO_W:
         pass
-    elif case == RefCase.LAST_REF:
+    elif case == RefCase.W_TO_R:
         pass
 
     return
@@ -48,8 +48,8 @@ def get_response_by_case(node: RefNode, case: RefCase):
 
 def get_response(node):
     hn_array = []
-    ori_hn_array = copy.deepcopy(node.hn_array)
     for each in WALL_NODE:
+        ori_hn_array = copy.deepcopy(node.hn_array)
         cur_hn_array = np.zeros(TIME_ARRAY_LENGTH)
         if not node.is_in_same_wall(each):
             delay, cur_hn = node.get_delay_and_hn(each)
