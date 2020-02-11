@@ -7,3 +7,5 @@ config.json文件说明：
 "REFLECT_TIMES": 反射次数  
 "ROOM_SIZE": 房间尺寸，以字符串的形式表示，例如"5\*5\*3"，单位为米(m)  
 "WALL_NODE_NUM": 反射点的个数，以字符串的形式表示  
+"FOV": 视场角的大小，单位deg  
+"REFLECTANCE"：反射率的大小
