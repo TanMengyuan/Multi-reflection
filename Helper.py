@@ -47,7 +47,6 @@ D_WALL_Y = (ROOM_Y_LEN * ROOM_Z_LEN) / (WALL_NODE_NUM_Y * WALL_NODE_NUM_Z)
 
 # Constant
 C = 3e8
-# todo: adding other constant of VLC
 RHO = 1 - REFLECTANCE
 I0 = 0.73
 A_PD = 1e-4

@@ -30,7 +30,7 @@ def init_wall_node():
 def get_response_by_case(from_node: RefNode, to_node: RefNode, case: RefCase):
     if (case == RefCase.T_TO_R and from_node.is_in_FOV(to_node)) or \
             case == RefCase.T_TO_W or \
-            (case == RefCase.W_TO_W and from_node.is_in_same_wall(to_node)) or \
+            (case == RefCase.W_TO_W and not from_node.is_in_same_wall(to_node)) or \
             (case == RefCase.W_TO_R and from_node.is_in_FOV(to_node)):
         delay, cur_hn = from_node.get_delay_and_hn_by_case(to_node=to_node, case=case)
         hn_array = cur_hn * from_node.hn_array
@@ -53,7 +53,11 @@ if __name__ == '__main__':
     unit_impulse = np.zeros(TIME_ARRAY_LENGTH)
     unit_impulse[0] = 1
 
-    # Four LEDs at 4 positions, one Rx at 0.1, 0.1, 0.85
+    # Tx_list = []
+    # for i in np.linspace(0.95, 1.55, 60):
+    #     for j in np.linspace(0.95, 1.55, 60):
+    #         Tx_list.append(RefNode([i, j, ROOM_Z_LEN], unit_impulse))
+
     Tx_list = [RefNode([1.25, 1.25, ROOM_Z_LEN], unit_impulse),
                RefNode([1.25, 3.75, ROOM_Z_LEN], unit_impulse),
                RefNode([3.75, 1.25, ROOM_Z_LEN], unit_impulse),
@@ -63,13 +67,13 @@ if __name__ == '__main__':
     """
     Directed part. (Tx --> Rx)
     """
-    start_time = datetime.datetime.now()
-    for cur_node in Tx_list:
-        Rx_device.hn_array += \
-            get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
-    end_time = datetime.datetime.now()
-    print("At directed light, program running %.3f seconds"
-          % ((end_time - start_time).total_seconds()))
+    # start_time = datetime.datetime.now()
+    # for cur_node in Tx_list:
+    #     Rx_device.hn_array += \
+    #         get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
+    # end_time = datetime.datetime.now()
+    # print("At directed light, program running %.3f seconds"
+    #       % ((end_time - start_time).total_seconds()))
 
     """
     Reflection part
@@ -95,7 +99,6 @@ if __name__ == '__main__':
         n time(s) reflection. (Wall --> Wall)
         """
         for times in range(REFLECT_TIMES - 1):
-            # At nth time
             start_time = datetime.datetime.now()
             wall_node_hn_adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
             for i in range(len(WALL_NODE)):
