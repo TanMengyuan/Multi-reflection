@@ -7,17 +7,10 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
-from enum import Enum
 import datetime
 from RefNode import RefNode
+from RefCase import RefCase
 from Helper import *
-
-
-class RefCase(Enum):
-    T_TO_W = "T_TO_W"
-    W_TO_W = "W_TO_W"
-    W_TO_R = "W_TO_R"
 
 
 def init_wall_node():
@@ -34,109 +27,97 @@ def init_wall_node():
     return wall_node
 
 
-def get_response_by_case(node: RefNode, case: RefCase):
-    # todo: case1: Tx --> Wall; case2: Wall --> Wall; case3: Wall --> Rx (Wall node is default.)
-    if case == RefCase.T_TO_W:
-        pass
-    elif case == RefCase.W_TO_W:
-        pass
-    elif case == RefCase.W_TO_R:
-        pass
-
-    return
-
-
-def get_response(node):
-    hn_array = []
-    for each in WALL_NODE:
-        ori_hn_array = copy.deepcopy(node.hn_array)
-        cur_hn_array = np.zeros(TIME_ARRAY_LENGTH)
-        if not node.is_in_same_wall(each):
-            delay, cur_hn = node.get_delay_and_hn(each)
-            cur_hn_array = ori_hn_array
-            cur_hn_array *= cur_hn
-            cur_hn_array = np.insert(cur_hn_array, 0,
-                                     np.zeros(int(delay // DT)))[:TIME_ARRAY_LENGTH]
-        hn_array.append(cur_hn_array)
-
-    return hn_array
+def get_response_by_case(from_node: RefNode, to_node: RefNode, case: RefCase):
+    if (case == RefCase.T_TO_R and from_node.is_in_FOV(to_node)) or \
+            case == RefCase.T_TO_W or \
+            (case == RefCase.W_TO_W and from_node.is_in_same_wall(to_node)) or \
+            (case == RefCase.W_TO_R and from_node.is_in_FOV(to_node)):
+        delay, cur_hn = from_node.get_delay_and_hn_by_case(to_node=to_node, case=case)
+        hn_array = cur_hn * from_node.hn_array
+        hn_array = np.insert(hn_array, 0, np.zeros(int(delay // DT)))[:TIME_ARRAY_LENGTH]
+        return hn_array
+    else:
+        return np.zeros(TIME_ARRAY_LENGTH)
 
 
-# might not be use --> change to get_response_by_case
-def receive_response(to_node):
-    hn_array = np.zeros(TIME_ARRAY_LENGTH)
-    for each in WALL_NODE:
-        if to_node.is_in_FOV(each):
-            delay, cur_hn = to_node.get_delay_and_hn(each)
-            cur_hn_array = copy.deepcopy(each.hn_array)
-            cur_hn_array *= cur_hn
-            cur_hn_array = np.insert(cur_hn_array, 0,
-                                     np.zeros(int(delay // DT)))[:TIME_ARRAY_LENGTH]
-            hn_array += cur_hn_array
-
-    return hn_array
-
-
-def plotting_array(node):
+def plotting_array_by_node(node: RefNode, normalization: bool):
     # todo: complete the function of plotting
-    plt.plot(node.hn_array)
+    hn_array = node.hn_array / np.max(node.hn_array) if normalization else node.hn_array
+    plt.plot(hn_array)
     plt.show()
 
 
 if __name__ == '__main__':
     WALL_NODE = init_wall_node()
 
-    """
-    This is a demo.
-    """
-    tmp = np.zeros(TIME_ARRAY_LENGTH)
-    tmp[0] = 1
-    Tx_demo = [RefNode([1, 1, ROOM_Z_LEN], tmp),
-               RefNode([2, 2, ROOM_Z_LEN], tmp),
-               RefNode([1, 2, ROOM_Z_LEN], tmp)]
+    unit_impulse = np.zeros(TIME_ARRAY_LENGTH)
+    unit_impulse[0] = 1
+
+    # Four LEDs at 4 positions, one Rx at 0.1, 0.1, 0.85
+    Tx_list = [RefNode([1.25, 1.25, ROOM_Z_LEN], unit_impulse),
+               RefNode([1.25, 3.75, ROOM_Z_LEN], unit_impulse),
+               RefNode([3.75, 1.25, ROOM_Z_LEN], unit_impulse),
+               RefNode([3.75, 3.75, ROOM_Z_LEN], unit_impulse)]
+    Rx_device = RefNode([0.1, 0.1, RX_HEIGHT], np.zeros(TIME_ARRAY_LENGTH))
 
     """
-    1st time reflection. (Tx --> Wall)
+    Directed part. (Tx --> Rx)
     """
-    adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
     start_time = datetime.datetime.now()
-    for cur_node in Tx_demo:
-        adding += get_response(cur_node)
-    for i in range(len(WALL_NODE)):
-        WALL_NODE[i].hn_array += adding[i]
+    for cur_node in Tx_list:
+        Rx_device.hn_array += \
+            get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
     end_time = datetime.datetime.now()
-    print("At first time reflection, program running %.2f seconds"
+    print("At directed light, program running %.3f seconds"
           % ((end_time - start_time).total_seconds()))
 
     """
-    n time(s) reflection. (Wall --> Wall)
+    Reflection part
     """
-    for times in range(REFLECT_TIMES):
-        # At nth time
+    if REFLECT_TIMES > 0:
+        """
+        1st time reflection. (Tx --> Wall)
+        """
         start_time = datetime.datetime.now()
-        adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
-        for cur_node in WALL_NODE:
-            adding += get_response(cur_node)
+        wall_node_hn_adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
+        for cur_node in Tx_list:
+            for i in range(len(WALL_NODE)):
+                wall_node_hn_adding[i] += \
+                    get_response_by_case(from_node=cur_node, to_node=WALL_NODE[i],
+                                         case=RefCase.T_TO_W)
         for i in range(len(WALL_NODE)):
-            WALL_NODE[i].hn_array += adding[i]
+            WALL_NODE[i].hn_array += RHO * wall_node_hn_adding[i]
         end_time = datetime.datetime.now()
-        print("At %d time reflection, program running %.2f seconds"
-              % ((times + 1), ((end_time - start_time).total_seconds())))
+        print("At first time reflection, program running %.3f seconds"
+              % ((end_time - start_time).total_seconds()))
 
-    """
-    Check result
-    """
-    # for i in range(len(WALL_NODE)):
-    #     plotting_array(WALL_NODE[i])
+        """
+        n time(s) reflection. (Wall --> Wall)
+        """
+        for times in range(REFLECT_TIMES - 1):
+            # At nth time
+            start_time = datetime.datetime.now()
+            wall_node_hn_adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
+            for i in range(len(WALL_NODE)):
+                for j in range(len(WALL_NODE)):
+                    wall_node_hn_adding[j] += \
+                        get_response_by_case(from_node=WALL_NODE[i], to_node=WALL_NODE[j],
+                                             case=RefCase.W_TO_W)
+            for i in range(len(WALL_NODE)):
+                WALL_NODE[i].hn_array += RHO * wall_node_hn_adding[i]
+            end_time = datetime.datetime.now()
+            print("At %d time(s) reflection, program running %.3f seconds"
+                  % ((times + 1), ((end_time - start_time).total_seconds())))
 
-    """
-    get response from all WALL_NODE. (Wall --> Rx)
-    """
-    Rx_demo = RefNode([0.1, 0.1, RX_HEIGHT], np.zeros(TIME_ARRAY_LENGTH))
-    start_time = datetime.datetime.now()
-    Rx_response = receive_response(Rx_demo)
-    end_time = datetime.datetime.now()
-    print("At last time reflection, program running %.2f seconds"
-          % ((end_time - start_time).total_seconds()))
-    Rx_demo.hn_array = Rx_response
-    plotting_array(Rx_demo)
+        """
+        get response from all WALL_NODE. (Wall --> Rx)
+        """
+        start_time = datetime.datetime.now()
+        for i in range(len(WALL_NODE)):
+            Rx_device.hn_array += D_WALL_X * get_response_by_case(
+                from_node=WALL_NODE[i], to_node=Rx_device, case=RefCase.W_TO_R)
+        end_time = datetime.datetime.now()
+        print("At last time receive, program running %.3f seconds"
+              % ((end_time - start_time).total_seconds()))
+
+    plotting_array_by_node(node=Rx_device, normalization=True)

@@ -6,6 +6,7 @@
 """
 
 import json
+import numpy as np
 
 CONFIG_FILE = './config.json'
 
@@ -13,11 +14,15 @@ with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
     config = json.load(f)
     TIME_ARRAY_LENGTH = config["TIME_ARRAY_LENGTH"]
     MAXIMUM_TIME = config["MAXIMUM_TIME"]
-    REFLECT_TIMES = config["REFLECT_TIMES"]
+    try:
+        REFLECT_TIMES = int(config["REFLECT_TIMES"])
+    except:
+        raise ImportError("REFLECT_TIMES can't resolve, it should be INT.")
     ROOM_SIZE = config["ROOM_SIZE"]
     RX_HEIGHT = config["RX_HEIGHT"]
-    FOV = config["FOV"]
+    FOV = np.deg2rad(config["FOV"])
     WALL_NODE_NUM = config["WALL_NODE_NUM"]
+    REFLECTANCE = config["REFLECTANCE"]
 
 # Resolve data
 try:
@@ -37,6 +42,17 @@ MARGIN_X, MARGIN_Y, MARGIN_Z = (ROOM_X_LEN / WALL_NODE_NUM_X) / 2, \
                                (ROOM_Z_LEN / WALL_NODE_NUM_Z) / 2
 DT = MAXIMUM_TIME / TIME_ARRAY_LENGTH
 
+D_WALL_X = (ROOM_X_LEN * ROOM_Z_LEN) / (WALL_NODE_NUM_X * WALL_NODE_NUM_Z)
+D_WALL_Y = (ROOM_Y_LEN * ROOM_Z_LEN) / (WALL_NODE_NUM_Y * WALL_NODE_NUM_Z)
+
 # Constant
 C = 3e8
 # todo: adding other constant of VLC
+RHO = 1 - REFLECTANCE
+I0 = 0.73
+A_PD = 1e-4
+TETHA_HALF = np.deg2rad(60)
+MM = np.int(- np.log(2) / np.log(np.cos(TETHA_HALF)))
+TETHA_INC = np.deg2rad(45)
+NN = 1.5
+

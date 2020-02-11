@@ -5,8 +5,8 @@
 @time: 2019/12/31 16:51
 """
 
-import numpy as np
-from Helper import ROOM_X_LEN, ROOM_Y_LEN, ROOM_Z_LEN, FOV, C
+from Helper import *
+from RefCase import RefCase
 
 
 class RefNode:
@@ -15,20 +15,28 @@ class RefNode:
         self.position = [self.x, self.y, self.z]
         self.hn_array = cur_hn
 
-    def get_delay_and_hn(self, b_node):
-        distance = np.sqrt(np.square(self.x - b_node.x) +
-                           np.square(self.y - b_node.y) +
-                           np.square(self.z - b_node.z))
-        # todo: finish the formula to calculate the hn by a_node and b_node
-        # <-- This is just a sample -->
-        hn = 1 / np.square(distance)
+    def get_info(self, to_node):
+        distance = np.sqrt(np.square(self.x - to_node.x) +
+                           np.square(self.y - to_node.y) +
+                           np.square(self.z - to_node.z))
+        height = (self.z - to_node.z)
+        tetha = np.arccos(height / distance)
+        return distance, height, tetha
+
+    def get_delay_and_hn_by_case(self, to_node, case):
+        distance, height, tetha_irr = self.get_info(to_node)
+        tetha_irr = np.pi / 2 - tetha_irr \
+            if case == RefCase.T_TO_W or case == RefCase.W_TO_W else tetha_irr
+        hn = (((MM + 1) * A_PD) / (2 * np.pi * np.square(distance))) * \
+             np.cos(TETHA_INC) ** MM * (np.square(NN) / (np.square(np.sin(FOV)))) * \
+             np.cos(tetha_irr)
         delay = distance / C
         return delay, hn
 
-    def is_in_same_wall(self, b_node):
-        return (self.x == b_node.x and self.x in [0, ROOM_X_LEN]) or \
-               (self.y == b_node.y and self.y in [0, ROOM_Y_LEN])
+    def is_in_same_wall(self, to_node):
+        return (self.x == to_node.x and self.x in [0, ROOM_X_LEN]) or \
+               (self.y == to_node.y and self.y in [0, ROOM_Y_LEN])
 
-    def is_in_FOV(self, b_node):
-        # todo: finish the calculate the FOV
-        return True
+    def is_in_FOV(self, to_node):
+        _, _, tetha_irr = self.get_info(to_node)
+        return tetha_irr <= FOV
