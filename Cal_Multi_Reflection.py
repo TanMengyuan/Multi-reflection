@@ -5,7 +5,6 @@
 @time: 2019/12/31 17:05
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 from RefNode import RefNode
@@ -41,7 +40,6 @@ def get_response_by_case(from_node: RefNode, to_node: RefNode, case: RefCase):
 
 
 def plotting_array_by_node(node: RefNode, normalization: bool):
-    # todo: complete the function of plotting
     hn_array = node.hn_array / np.max(node.hn_array) if normalization else node.hn_array
     plt.plot(hn_array)
     plt.show()
