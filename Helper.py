@@ -47,11 +47,10 @@ D_WALL_Y = (ROOM_Y_LEN * ROOM_Z_LEN) / (WALL_NODE_NUM_Y * WALL_NODE_NUM_Z)
 
 # Constant
 C = 3e8
-RHO = 1 - REFLECTANCE
+RHO = REFLECTANCE
 I0 = 0.73
 A_PD = 1e-4
 TETHA_HALF = np.deg2rad(60)
 MM = np.int(- np.log(2) / np.log(np.cos(TETHA_HALF)))
 TETHA_INC = np.deg2rad(45)
 NN = 1.5
-

@@ -39,9 +39,12 @@ def get_response_by_case(from_node: RefNode, to_node: RefNode, case: RefCase):
         return np.zeros(TIME_ARRAY_LENGTH)
 
 
-def plotting_array_by_node(node: RefNode, normalization: bool):
-    hn_array = node.hn_array / np.max(node.hn_array) if normalization else node.hn_array
-    plt.plot(hn_array)
+def plotting_array_by_node(node: RefNode, color: str, normalization=False, limit_y=False):
+    # hn_array = node.hn_array / np.max(node.hn_array) if normalization else node.hn_array
+    hn_array = node.hn_array / hn_max if normalization else node.hn_array
+    plt.plot(hn_array, color)
+    if limit_y:
+        plt.ylim(-0.05, 1.05)
     plt.show()
 
 
@@ -51,27 +54,52 @@ if __name__ == '__main__':
     unit_impulse = np.zeros(TIME_ARRAY_LENGTH)
     unit_impulse[0] = 1
 
+    Tx_position = [[1.25, 1.25, ROOM_Z_LEN],
+                   [1.25, 3.75, ROOM_Z_LEN],
+                   [3.75, 1.25, ROOM_Z_LEN],
+                   [3.75, 3.75, ROOM_Z_LEN]]
+
+    # 4 LED array
     # Tx_list = []
-    # for i in np.linspace(0.95, 1.55, 60):
-    #     for j in np.linspace(0.95, 1.55, 60):
+    # for pos in Tx_position:
+    #     for i in np.linspace(pos[0] - 0.3, pos[0] + 0.3, 60):
+    #         for j in np.linspace(pos[1] - 0.3, pos[1] + 0.3, 60):
+    #             Tx_list.append(RefNode([i, j, ROOM_Z_LEN], unit_impulse))
+
+    # Single LED array (most possible)
+    # Tx_list = []
+    # pos = Tx_position[0]
+    # for i in np.linspace(pos[0] - 0.3, pos[0] + 0.3, 60):
+    #     for j in np.linspace(pos[1] - 0.3, pos[1] + 0.3, 60):
     #         Tx_list.append(RefNode([i, j, ROOM_Z_LEN], unit_impulse))
 
-    Tx_list = [RefNode([1.25, 1.25, ROOM_Z_LEN], unit_impulse),
-               RefNode([1.25, 3.75, ROOM_Z_LEN], unit_impulse),
-               RefNode([3.75, 1.25, ROOM_Z_LEN], unit_impulse),
-               RefNode([3.75, 3.75, ROOM_Z_LEN], unit_impulse)]
-    Rx_device = RefNode([0.1, 0.1, RX_HEIGHT], np.zeros(TIME_ARRAY_LENGTH))
+    # 4-lamps
+    # Tx_list = []
+    # for pos in Tx_position:
+    #     Tx_list.append(RefNode(pos, unit_impulse))
+
+    # Single lamp
+    Tx_list = [RefNode(Tx_position[0], unit_impulse)]
+
+    Rx_position = [0.01, 0.01, RX_HEIGHT]
+    Rx_device = RefNode(Rx_position, np.zeros(TIME_ARRAY_LENGTH))
+    Rx_device_directed_part = RefNode(Rx_position, np.zeros(TIME_ARRAY_LENGTH))
+    Rx_device_reflection_part = RefNode(Rx_position, np.zeros(TIME_ARRAY_LENGTH))
 
     """
     Directed part. (Tx --> Rx)
     """
-    # start_time = datetime.datetime.now()
-    # for cur_node in Tx_list:
-    #     Rx_device.hn_array += \
-    #         get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
-    # end_time = datetime.datetime.now()
-    # print("At directed light, program running %.3f seconds"
-    #       % ((end_time - start_time).total_seconds()))
+    start_time = datetime.datetime.now()
+
+    for cur_node in Tx_list:
+        Rx_device.hn_array += \
+            get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
+        Rx_device_directed_part.hn_array += \
+            get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
+
+    end_time = datetime.datetime.now()
+    print("At directed light, program running %.3f seconds"
+          % ((end_time - start_time).total_seconds()))
 
     """
     Reflection part
@@ -81,6 +109,7 @@ if __name__ == '__main__':
         1st time reflection. (Tx --> Wall)
         """
         start_time = datetime.datetime.now()
+
         wall_node_hn_adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
         for cur_node in Tx_list:
             for i in range(len(WALL_NODE)):
@@ -88,16 +117,18 @@ if __name__ == '__main__':
                     get_response_by_case(from_node=cur_node, to_node=WALL_NODE[i],
                                          case=RefCase.T_TO_W)
         for i in range(len(WALL_NODE)):
-            WALL_NODE[i].hn_array += RHO * wall_node_hn_adding[i]
+            WALL_NODE[i].hn_array += wall_node_hn_adding[i]
+
         end_time = datetime.datetime.now()
-        print("At first time reflection, program running %.3f seconds"
+        print("At 1st time reflection, program running %.3f seconds"
               % ((end_time - start_time).total_seconds()))
 
-        """
-        n time(s) reflection. (Wall --> Wall)
-        """
-        for times in range(REFLECT_TIMES - 1):
+        for times in range(1, REFLECT_TIMES):
+            """
+            n time(s) reflection. (Wall --> Wall)
+            """
             start_time = datetime.datetime.now()
+
             wall_node_hn_adding = np.zeros(shape=(len(WALL_NODE), TIME_ARRAY_LENGTH))
             for i in range(len(WALL_NODE)):
                 for j in range(len(WALL_NODE)):
@@ -105,20 +136,27 @@ if __name__ == '__main__':
                         get_response_by_case(from_node=WALL_NODE[i], to_node=WALL_NODE[j],
                                              case=RefCase.W_TO_W)
             for i in range(len(WALL_NODE)):
-                WALL_NODE[i].hn_array += RHO * wall_node_hn_adding[i]
+                WALL_NODE[i].hn_array += wall_node_hn_adding[i]
+
             end_time = datetime.datetime.now()
-            print("At %d time(s) reflection, program running %.3f seconds"
+            print("At %dth times reflection, program running %.3f seconds"
                   % ((times + 1), ((end_time - start_time).total_seconds())))
 
         """
         get response from all WALL_NODE. (Wall --> Rx)
         """
-        start_time = datetime.datetime.now()
         for i in range(len(WALL_NODE)):
-            Rx_device.hn_array += D_WALL_X * get_response_by_case(
+            Rx_device.hn_array += get_response_by_case(
                 from_node=WALL_NODE[i], to_node=Rx_device, case=RefCase.W_TO_R)
-        end_time = datetime.datetime.now()
-        print("At last time receive, program running %.3f seconds"
-              % ((end_time - start_time).total_seconds()))
+            Rx_device_reflection_part.hn_array += get_response_by_case(
+                from_node=WALL_NODE[i], to_node=Rx_device, case=RefCase.W_TO_R)
 
-    plotting_array_by_node(node=Rx_device, normalization=True)
+    hn_max = np.max(Rx_device.hn_array)
+    dir_part = np.sum(Rx_device_directed_part.hn_array)
+    ref_part = np.sum(Rx_device_reflection_part.hn_array)
+    print("{:.2f} %".format(100 * ref_part / dir_part))
+
+    plotting_array_by_node(node=Rx_device_directed_part, color="r",
+                           normalization=True, limit_y=True)
+    plotting_array_by_node(node=Rx_device_reflection_part, color="b",
+                           normalization=True, limit_y=True)
