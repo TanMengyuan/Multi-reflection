@@ -74,12 +74,12 @@ if __name__ == '__main__':
     #         Tx_list.append(RefNode([i, j, ROOM_Z_LEN], unit_impulse))
 
     # 4-lamps
-    # Tx_list = []
-    # for pos in Tx_position:
-    #     Tx_list.append(RefNode(pos, unit_impulse))
+    Tx_list = []
+    for pos in Tx_position:
+        Tx_list.append(RefNode(pos, unit_impulse))
 
     # Single lamp
-    Tx_list = [RefNode(Tx_position[0], unit_impulse)]
+    # Tx_list = [RefNode(Tx_position[0], unit_impulse)]
 
     Rx_position = [0.01, 0.01, RX_HEIGHT]
     Rx_device = RefNode(Rx_position, np.zeros(TIME_ARRAY_LENGTH))

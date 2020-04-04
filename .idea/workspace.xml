@@ -4,8 +4,6 @@
     <list default="true" id="855fd5e6-e3c0-48dd-a8f4-5aacde2de5a9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cal_Multi_Reflection.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cal_Multi_Reflection.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/Helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefNode.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefNode.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
