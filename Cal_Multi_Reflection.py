@@ -10,6 +10,7 @@ import datetime
 from RefNode import RefNode
 from RefCase import RefCase
 from Helper import *
+from NodeUtil import *
 
 
 def init_wall_node():
@@ -27,11 +28,11 @@ def init_wall_node():
 
 
 def get_response_by_case(from_node: RefNode, to_node: RefNode, case: RefCase):
-    if (case == RefCase.T_TO_R and from_node.is_in_FOV(to_node)) or \
+    if (case == RefCase.T_TO_R and is_in_FOV(from_node, to_node)) or \
             case == RefCase.T_TO_W or \
-            (case == RefCase.W_TO_W and not from_node.is_in_same_wall(to_node)) or \
-            (case == RefCase.W_TO_R and from_node.is_in_FOV(to_node)):
-        delay, cur_hn = from_node.get_delay_and_hn_by_case(to_node=to_node, case=case)
+            (case == RefCase.W_TO_W and not is_in_same_wall(from_node, to_node)) or \
+            (case == RefCase.W_TO_R and is_in_FOV(from_node, to_node)):
+        delay, cur_hn = get_delay_and_hn_by_case(a_node=from_node, b_node=to_node, case=case)
         hn_array = cur_hn * from_node.hn_array
         hn_array = np.insert(hn_array, 0, np.zeros(int(delay // DT)))[:TIME_ARRAY_LENGTH]
         return hn_array
