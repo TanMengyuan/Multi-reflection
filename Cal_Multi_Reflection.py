@@ -10,7 +10,7 @@ import datetime
 from RefNode import RefNode
 from RefCase import RefCase
 from Helper import *
-from NodeUtil import *
+import NodeUtil
 
 
 def init_wall_node():
@@ -28,11 +28,11 @@ def init_wall_node():
 
 
 def get_response_by_case(from_node: RefNode, to_node: RefNode, case: RefCase):
-    if (case == RefCase.T_TO_R and is_in_FOV(from_node, to_node)) or \
+    if (case == RefCase.T_TO_R and NodeUtil.is_in_FOV(from_node, to_node)) or \
             case == RefCase.T_TO_W or \
-            (case == RefCase.W_TO_W and not is_in_same_wall(from_node, to_node)) or \
-            (case == RefCase.W_TO_R and is_in_FOV(from_node, to_node)):
-        delay, cur_hn = get_delay_and_hn_by_case(a_node=from_node, b_node=to_node, case=case)
+            (case == RefCase.W_TO_W and not NodeUtil.is_in_same_wall(from_node, to_node)) or \
+            (case == RefCase.W_TO_R and NodeUtil.is_in_FOV(from_node, to_node)):
+        delay, cur_hn = NodeUtil.get_delay_and_hn_by_case(a_node=from_node, b_node=to_node, case=case)
         hn_array = cur_hn * from_node.hn_array
         hn_array = np.insert(hn_array, 0, np.zeros(int(delay // DT)))[:TIME_ARRAY_LENGTH]
         return hn_array
@@ -93,10 +93,9 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now()
 
     for cur_node in Tx_list:
-        Rx_device.hn_array += \
-            get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
-        Rx_device_directed_part.hn_array += \
-            get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
+        hn_array_tmp = get_response_by_case(from_node=cur_node, to_node=Rx_device, case=RefCase.T_TO_R)
+        Rx_device.hn_array += hn_array_tmp
+        Rx_device_directed_part.hn_array += hn_array_tmp
 
     end_time = datetime.datetime.now()
     print("At directed light, program running %.3f seconds"
@@ -147,17 +146,19 @@ if __name__ == '__main__':
         get response from all WALL_NODE. (Wall --> Rx)
         """
         for i in range(len(WALL_NODE)):
-            Rx_device.hn_array += get_response_by_case(
-                from_node=WALL_NODE[i], to_node=Rx_device, case=RefCase.W_TO_R)
-            Rx_device_reflection_part.hn_array += get_response_by_case(
-                from_node=WALL_NODE[i], to_node=Rx_device, case=RefCase.W_TO_R)
+            hn_array_tmp = get_response_by_case(from_node=WALL_NODE[i],
+                                                to_node=Rx_device, case=RefCase.W_TO_R)
+            Rx_device.hn_array += hn_array_tmp
+            Rx_device_reflection_part.hn_array += hn_array_tmp
 
     hn_max = np.max(Rx_device.hn_array)
     dir_part = np.sum(Rx_device_directed_part.hn_array)
     ref_part = np.sum(Rx_device_reflection_part.hn_array)
     print("{:.2f} %".format(100 * ref_part / dir_part))
 
-    plotting_array_by_node(node=Rx_device_directed_part, color="r",
-                           normalization=True, limit_y=True)
-    plotting_array_by_node(node=Rx_device_reflection_part, color="b",
+    # plotting_array_by_node(node=Rx_device_directed_part, color="r",
+    #                        normalization=True, limit_y=True)
+    # plotting_array_by_node(node=Rx_device_reflection_part, color="b",
+    #                        normalization=True, limit_y=True)
+    plotting_array_by_node(node=Rx_device, color="k",
                            normalization=True, limit_y=True)
