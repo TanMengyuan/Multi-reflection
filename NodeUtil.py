@@ -24,7 +24,6 @@ def get_info(a_node: RefNode, b_node: RefNode):
 
 def get_delay_and_hn_by_case(a_node: RefNode, b_node: RefNode, case: RefCase):
     delay, hn = 0, 0
-    # tetha_irr的结果是与吹直方向的夹角
     distance, height, tetha_irr = get_info(a_node=a_node, b_node=b_node)
 
     if height < 0:
